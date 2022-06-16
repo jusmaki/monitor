@@ -1,0 +1,34 @@
+.TH MONITOR 3L \" -*- nroff -*-
+
+.SH NAME
+monitor \- library provides an interface to AIX kernel
+for getting performance monitoring variables.
+
+.SH SYNOPSIS
+cc -o yourmon yourmon.o -lmonitor
+
+.SH DESCRIPTION
+
+
+Following routines can handle memory allocation on demand, expect
+the get_topcpu.
+
+int get_dkstat(struct dkstat **dkstat_list);
+int summary_dkstat(struct dkstat **sum, struct dkstat *dk1, struct dkstat *dk2, int *active);
+
+int get_ifnet(struct ifnet **ifnet_list);
+
+void get_nfsstat(nfsstat_t **nfsstatp);
+extern int no_nfs; /* true if nfs is not available */
+
+void get_sysvminfo(sysvminfo_t **sysvminfo);
+
+void get_topcpu(topcpu_t *top, int ntops);
+
+
+.SH AUTHOR
+Jussi Maki, Helsinki University of Techonology, Computing Centre,
+Email: jmaki@vipunen.hut.fi
+
+.SH SEE ALSO
+vmstat(1), ps(1), sar(1), iostat(1), nfsstat(1), monitor(1)

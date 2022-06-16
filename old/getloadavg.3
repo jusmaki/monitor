@@ -1,0 +1,21 @@
+GETLOADAVG(3)		UNIX Programmer's Manual		GETLOADAVG(3)
+
+NAME
+	getloadavg - subroutine to get system load average
+	values
+
+SYNTAX
+	getloadavg(double loadv[],int nelems)
+	
+DESCRIPTION
+	loadv is the array of loadvalues, which is usually
+	defined as double loadv[3] and nelems is the
+	number of loadvalues which is usually 3.
+
+	This getloadavg version is meant to be used
+	in AIX 3.1 which doesn't have loadaverage values
+	in kernel. These values are calculated by external
+	process called loadavgd. 
+
+	getloadavg can be used by linking it with libgetloadavg.a
+	library and including getloadavg.h include file.

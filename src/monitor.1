@@ -1,0 +1,171 @@
+.TH MONITOR 1L \" -*- nroff -*-
+
+.SH NAME
+monitor \- display and update information about the
+IBM RS/6000 AIX system events and optionally top cpu
+processes
+
+.SH SYNOPSIS
+monitor [-s time] [-c count] [-pru] [-top [number]] [-all] [-disk] [-net] [-smp]
+
+.SH DESCRIPTION
+Monitor shows various system variables and updates
+the screen periodically. Monitor can also be used
+to show top cpu processes.
+
+Monitor program can be exited by typing a letter 'q'
+or by typing cltr-C (keyboard interrupt). Monitor screen
+can be refreshed immediately by typing ctrl-L. 
+Another key commands are 'd' to toggle disk 
+display, 'n' to toggle net display and 't' to toggle top cpu users display.
+
+For AIX version 3.1 the monitor uses another process to
+calculate load average values in background. This process is started
+automatically first time some user tries to use this monitor or any
+other program which tries to get loadavgvalues with supplied
+getloadavg-subroutine.
+
+The output of monitor can also be redirected to a file when
+using monitor release 1.13 or never. The option \-p has to
+can also be used to force this. The output layout is slightly
+different in plain ascii mode.
+
+.SH OPTIONS
+.TP
+.BR  \-s " time"
+Set the delay between screen updates to time
+seconds. The default delay is 10 seconds after
+first initial 1 second delay. Note the smaller
+the delay is more the monitor will use cputime.
+
+.TP
+.BR \-top " [nproc]"
+Shows top cpu processes and shows only summary
+of system variables. If extra parameter is
+given monitor will show that amount of processes.
+If display is wider than 95 characters, top-display
+will show how user and system time distributed among
+processes.
+
+.TP
+.BR \-all
+Shows both system events and top cpu processes.
+Note this will need higher window (eg. Xwindows
+xterm).
+
+.TP 
+.BR \-net
+Show detailed network statistics.
+
+.TP
+.BR \-smp
+Show symmetric multiprocessing cpuinformation.
+
+.TP 
+.BR \-disk
+Show detailed disk information.
+
+.TP
+.BR \-u
+Show only uid from users. This could make the top display
+faster if your passwd database is not fast enough. (Eg.
+you have more than 2000 passwd entries and you are not
+using passwd.pag,.dir databases made with mkpasswd-command).
+
+.TP
+.BR \-r
+Show only running processes or show those processes
+which have gained CPU time.
+
+.TP
+.BR \-c\ count
+Refresh the display "count" times. 
+
+.TP
+.BR \-p
+Print monitoring output in plain ascii. This output can
+be redirected to a file for postprocessing purposes.
+
+.SH DISPLAY
+In default mode monitor will show following information
+.IP \(bu 5
+hostname, date and time between display delay.
+.IP \(bu 5
+percentage distribution of cpu-load (system, wait, user and 
+idle percentages) with graf where '=' means system,	
+'W' means wait, ">" means user and "." means idle time.
+.IP \(bu 5
+runnable processes value/second and load average values
+of 1, 5 and 15 minute times 
+.IP \(bu 5
+processes waiting to be swapped in
+.IP \(bu 5
+both free and total from real and virtual memory,
+real memory is RAM-memory and virtual memory
+is paging space. For real memory the usage is shown for process
+and file pages. In AIX normal file accesses are done internally by mapping 
+files to memory and thus memory seems to be always used.
+.IP \(bu 5
+paging information; pagefaults, pages to be paged in and out
+from user space and pages to be paged in and out from
+paging (swap) space, page size in AIX 3.1 is 4 kB,
+.IP \(bu 5
+various process and system events: process (context) switches,
+system call, read and write -calls, forks and execs,
+three interrupts rcvint, xmtint, mdmint.
+.IP \(bu 5
+File and tty-IO variables; iget, namei and dirblk, amout of read and written kbytes, 
+amount of ttybased characters handled.
+.IP \(bu 5
+Disk-information, read and written bytes/second and amount of busy time 
+.IP \(bu 5
+NFS RPC information of read,write and other access calls
+.IP \(bu 5
+network (netw) information; amount of read and written kB  per second.
+
+When using -top option top lines will show:
+.IP \(bu 5
+hostname, load average values of 1, 5 and 15 minutes and date
+.IP \(bu 5
+percentage distribution of cpu states (user, system, wait and idle time)
+.IP \(bu 5
+for real and virtual memory the amount used, free and total
+memory
+
+Following lines will show values of the top cpu time processes
+sorted by current cpu-usage as first sortkey and by second
+key the total amount cputime used.
+
+The display of processes is similar to ps(1). PID is the
+process id, USER is the username of the process owner,
+PRI is the current priority of the process, NICE is the
+nice value for the process in the range -20 to 20
+(note for kernel-processes the nice value is 21 which means
+that the process has fixed-priority and the nice value
+doesn't have any meaning), SIZE is the amount virtual
+memory used, RES is the amount of real memory used, 
+STAT is the status of the process, TIME is the amount
+of cputime used, CPU% is the cputime distribution
+between two displays and COMMAND is the short-name of
+the process command. If process was kernel process
+"Kernel" is added to process name.
+	
+Monitor -top will display both Kernel and user
+processes in process list. Kernel processes are display like
+'Kernel (wait)'. That particular process is the idle loop of AIX machine
+which consumes all idle CPU cycles.
+
+Monitor -top will display with wider screens (more than 94 columns) user
+and system time distribution among processes.
+
+.SH VERSION
+This manual page is for monitor version 1.14
+
+.SH AUTHOR
+Jussi Maki, Center for Scientific Computing, Finland
+Email: jmaki@csc.fi
+URL:  http://www.csc.fi/~jmaki
+
+.SH SEE ALSO
+vmstat(1), ps(1), sar(1), iostat(1), nfsstat(1)
+

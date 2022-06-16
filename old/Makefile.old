@@ -1,0 +1,109 @@
+#
+# Makefile for loadavgd and monitor -programs
+#
+# Author: Jussi Maki, jmaki@hut.fi, 31.05.1991
+#			modified    06.02.1996
+#
+# How to install:
+#  1. Edit Makefile to contain correct INSTALLDIR  
+#     where programs will be installed
+#  2. Run make
+#  3. Install programs by making monitor and loadavgd suid-programs
+#     to root user eg.
+#       make install
+#
+
+#DEFS=-DUSE_FAST_GETPWUID
+
+INSTALLDIR=/usr/local/bin
+
+
+LOADAVGD_LOCATION=$(INSTALLDIR)/loadavgd
+
+AIX_VERSION=AIXv"`uname -v`"r"`uname -r`"
+
+# options for debugging loadavgd
+#CFLAGS= -DDEBUG -g -D$(AIX_VERSION) $(DEFS)
+#CFLAGS=  -g -D$(AIX_VERSION) $(DEFS)
+# For xlC 02.01.03.00 you have to use optimiziation flags in
+# order to generate correct code.
+CFLAGS=  -O2 -D$(AIX_VERSION) $(DEFS)
+
+MONVERSION=monitor-1.14
+MONITOROBJS = monitor.o 
+
+LIBMONITOROBJS = \
+	get_dkstat.o get_ifnet.o get_nfsstat.o get_sysvminfo.o \
+	get_topcpu.o getkmemdata.o get_cpuinfo.o
+
+all:	libmonitor.a loadavgd monitor uptime loadavgLED fps 
+
+libmonitor.a:	$(LIBMONITOROBJS)
+	/bin/rm -f libmonitor.a
+	ar qc libmonitor.a $(LIBMONITOROBJS)
+
+loadavgLED:	loadavgLED.o libgetloadavg.a
+	gcc $(CFLAGS) -o loadavgLED loadavgLED.o libgetloadavg.a	
+
+uptime:	uptime.o libgetloadavg.a 
+	gcc $(CFLAGS) -o uptime uptime.o libgetloadavg.a
+
+fps:	fps.o
+	gcc $(CFLAGS) -o fps fps.o
+
+loadavgd:	loadavgd.o loadavg.o
+	gcc $(CFLAGS) -o loadavgd loadavgd.o loadavg.o
+
+monitor:	$(MONITOROBJS) libgetloadavg.a libmonitor.a
+	gcc $(CFLAGS) -o monitor $(MONITOROBJS) libgetloadavg.a libmonitor.a -lcurses
+
+testgetloadavg:	testgetloadavg.o libgetloadavg.a
+	gcc $(CFLAGS) -o testgetloadavg testgetloadavg.o libgetloadavg.a
+
+launch_loadavgd.o:	launch_loadavgd.c getloadavg.h
+	gcc -c $(CFLAGS) -DLOADAVGD_LOCATION=\"$(LOADAVGD_LOCATION)\" launch_loadavgd.c
+
+libgetloadavg.a:	getloadavg.o launch_loadavgd.o getkmemdata.o
+	-/bin/rm -f libgetloadavg.a
+	ar qc libgetloadavg.a getloadavg.o launch_loadavgd.o getkmemdata.o
+	ranlib libgetloadavg.a
+
+tar:	
+	(cd ..; tar cvfb $(MONVERSION).tar 1 \
+	$(MONVERSION)/*README* \
+	$(MONVERSION)/FAQ \
+	$(MONVERSION)/Makefile \
+	$(MONVERSION)/top \
+	$(MONVERSION)/*.h \
+	$(MONVERSION)/*.c \
+	$(MONVERSION)/*.1 \
+	$(MONVERSION)/*.3)
+
+clean:
+	-/bin/rm -f *.o core *~ monitor uptime loadavgd loadavgLED fps uptime libmonitor.a libgetloaavg.a
+
+install:
+	-/bin/rm -f $(INSTALLDIR)/uptime
+	-/bin/rm -f $(INSTALLDIR)/loadavgd
+	-/bin/rm -f $(INSTALLDIR)/loadavgLED
+	-/bin/rm -f $(INSTALLDIR)/monitor
+	-/bin/rm -f $(INSTALLDIR)/fps
+	/bin/cp uptime loadavgd loadavgLED monitor fps top $(INSTALLDIR)
+	chown root $(INSTALLDIR)/loadavgd
+	chown root $(INSTALLDIR)/loadavgLED
+	chown root $(INSTALLDIR)/uptime
+	chown root $(INSTALLDIR)/monitor
+	chgrp system $(INSTALLDIR)/loadavgd
+	chgrp system $(INSTALLDIR)/uptime
+	chgrp system $(INSTALLDIR)/monitor
+	chmod 711 $(INSTALLDIR)/loadavgd
+	chmod 711 $(INSTALLDIR)/monitor
+	chmod 711 $(INSTALLDIR)/fps
+	chmod g+s $(INSTALLDIR)/loadavgd
+	chmod g+s $(INSTALLDIR)/monitor
+	chmod u+s $(INSTALLDIR)/loadavgLED
+
+monitor.o:	monitor.c getloadavg.h get_topcpu.h get_dkstat.h
+get_topcpu.o:	get_topcpu.c get_topcpu.h getproc.h 
+getloadavg.o:	getloadavg.c getloadavg.h
+

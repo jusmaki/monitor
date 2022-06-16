@@ -1,0 +1,61 @@
+Monitor FAQ for version 1.14
+Last updated:  21 November 1995
+
+Q: The monitor displays some big numbers like 
+   "Runnable processes -4482185767840725.00" in AIX3 with xlC 2.1.3?
+A: There seems to be a bug in that version of xlC. Compile the
+   monitor with -O2 flag (see the Makefile).
+
+Q: How can I display multiprocessor information in monitor?
+A: Use monitor version 1.14 and -smp option.
+
+Q: Is there further documentation on different monitored variables.
+A: Some information is available from my conference paper on SHARE/1994
+   at ftp://ftp.funet.fi/pub/unix/AIX/RS6000/monitor-paper.ps.Z
+   or from http://www.csc.fi/~jmaki
+
+Q: How can I redirect the output of monitor to a file for preprocessing?
+A: Run monitor like "monitor -all -c 2 -s 5 > monitor.output"
+
+Q: On IBM SP, why the css0 is showing always 0 kbyte/s transfer rates?
+A: IBM/Kingston has decided that it is not worth updating the 32 bit
+   network counters which are shown also by SNMP variables. The
+   packet counters are however updated and thus meaningfull also with monitor.
+
+Q: What is the process 514 which consumes much of the CPU-time?
+A: It is Kernel (wait) process which is the idle loop in AIX. Wait-process
+   is just the place where idle cpu-time is consumed. It is not harmfull.
+   You cannot kill it. It's running in priority 127 which is the worst
+   priority.
+
+Q: I just booted my RS/6000 and why all memory is used?
+A: AIX buffers all file accesses throught memory. So this is the reason
+   why "all" memory seems to be used. One can look this with monitor
+   in Memory part, the files shows the amount of memory that is
+   used by files (actually other than text and data (procs) memory segments).
+	Memory    Real     Virtual
+	free      1.4 MB   42.9 MB
+	procs    20.5 MB   21.1 MB
+	files    10.1 MB          
+	total    32.0 MB   64.0 MB
+
+Q: What are the vierd numbers that are shown on my three digit LEDs display?
+A: You are probably running older version of loadavgd or loadavgLED which 
+   shows your systems load average in three digit LEDs display.
+
+Q: Where can I found more information on how to use monitor and what
+   is the meaning of all different numbers show by it? And how can
+   I tune my system to work better?
+A: At the moment there isn't any really good all explaining document on this.
+   I'm working on it at my spare time. There is an IBM AIX publication
+   "IBM AIX Performance tuning quide" which can help you solving some
+   of the problems.
+
+Q: How do I install monitor.
+A: Assuming you are installing the binaries to /usr/local/bin
+   Run as root.
+	cd "directory-where-monitor-sources-are"
+	make clean
+	make
+	./monitor -c 1
+	make install

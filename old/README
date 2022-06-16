@@ -1,0 +1,139 @@
+Monitor program is an AIX/6000 System performance monitor program.
+Monitor-program can be used to display system statistics
+of various short time performance values. Monitor program is available
+from ftp.funet.fi using anonymous ftp from 
+ftp://ftp.funet.fi/pub/unix/AIX/RS6000/monitor-1.14.tar.Z -file.
+
+New to version 1.14 (25-Mar-1996)
+	* support for Symmetric multiprocessing cpuinfo (-smp option 
+	  or 's' character command in interactive mode).
+        * help page in interactive mode 'h' or '?' character commands
+
+New to version 1.13-beta
+	* support for plain ASCII output (-p option or output to a file with >)
+	* support for AIX 4 (changes in get_ifnet)
+	* changes in monitor-structures (get_topcpu.h memsize_4k->memsize_1k)
+	* add '-r' option to display only runnable processes with -top
+ 	  eg. those processes which have used CPU time
+        * fixed a bug in displaying more than 100 processes with -top
+
+New to version 1.12 (16-Jun-1994)
+	* show more detailed memory usage. (This is estimated
+	  since there are no published AIX internals quide). Thanks
+	  to Pierre Verpeaux for pointing this out from vmtune.c 
+	  samples code.
+	* rewrote part of the monitor code in a more layered method
+	  (now interfaces to kernel are in libmonitor.a, see monitor.3)
+        * fddi interface shown correctly
+	* monitor -net to display more on network interface
+	* disk information restructured to contain summary and detail
+	* monitor -top with wide screen shows now more
+	  information on processes
+	* loadavgLED works now both on 3.2.4 and 3.2.5
+
+New to version 1.11
+        * support for more disk information with -disk flag
+	* support for NFS operations display (eg. man nfsstat)
+
+New to version 1.10
+  	* fixed support for model 220 on memory displays (it should
+          propably work, this has not been tested with many
+          configurations). Made monitor to use avenrun values from
+	  kernel which are supported after AIX 3.2.4.
+	* a separate program is supplied for display loadaverage values in LEDs
+
+Versions 1.07 - 1.09 were for internal testing 
+
+New to version 1.06
+	* support for IBM RISC System 6000 model 220. Monitor should now
+	  displays amount of total memory correctly.
+	* optional support for led display (compile loadavgd program
+	  with -DLED option). (LED-display will show 1 minute load average
+	  in RS/6000 front LED-display using letter 'c' and it's mirror image
+	  as decimal point. Each time that loadavgd is responds to
+	  getloadavg() call LED-display is refreshed and decimal point
+	  is changed to its mirror image.)
+
+New to version 1.06beta
+	* support for AIX 3.2. Note, version compiled in AIX 3.2
+	  don't work in AIX 3.1!
+	* bug fixes
+	* support for immediate screen refresh (with ctrl-L)
+	* nroff -version of man-page in file monitor.1
+	* for wider screens top will show user and system time distribution
+
+New to version 1.04
+	* process info sorted by cpu-usage (in top.c and top.h files)
+	  try 'monitor -top'
+	  Information shown are process-id, username, priority, nice-value,
+	  program size (virtualmemeory), program size in real memory (RES),
+	  process status, used cputime, cputime usage between display refresh.
+	* new flags [-top [nprocs]] [-all]
+	* changed exit with ctrl-c or q
+
+New to version 1.03
+	* included uptime-command that users loadavgd to get loadavgvalues
+
+New to version 1.02
+	* start using loadavgd-daemon
+	* added ethernet-interface number to name
+	
+Values showed in monitor are (most of the values are converted
+to units/second).
+	* hostname and date
+	* percentage distribution of cpu-load (system, wait, user and 
+	  idle percentages) with graf where '=' means system,	
+	  'W' means wait, ">" means user and "." means idle time.
+	* runnable processes value/second and load average values
+	  of 1, 5 and 15 minute times 
+	* processes waiting to be swapped in
+	* both free and total from real and virtual memory,
+	  real memory is RAM-memory and virtual memory
+	  is paging space
+	* paging information; pagefaults, pages to be paged in and out
+	  from user space and pages to be paged in and out from
+	  paging (swap) space, page size in AIX 3.1 is 4 kB,
+	* various process and system events: process (context) switches,
+	  system call, read and write -calls, forks and execs,
+	  three interrupts rcvint, xmtint, mdmint.
+	* File and tty-IO variables; iget, namei and dirblk, amout of read
+	  and written kbytes, amount of ttybased characters handled.
+	* Disk-information, read and written bytes/second and amount
+	  of busy time 
+	* network (netw) information; amount read and written kB per second.
+        * SMP Symmetric MultiProcessor information for SMP machines
+
+See also:
+	AIX commands vmstat(1), sar(1), netstat(1)
+	/usr/include/sys/{sysinfo.h, vminfo.h, iostat.h}
+	/usr/include/sys/if.h
+
+
+How to install:
+	To install the monitor place the source to appropriate
+ 	directory, then use 
+		make 
+	command to compile the sources.	Programs can be installed with
+		make install command
+	by default programs are installed to /usr/local/bin
+	directory.
+
+New plan:
+	* v2.0 together with Marcel J.E. Mol  <marcel@mesa.nl>
+          to support better file logging and cleaner code.
+	  Actually most of code is done (25-Mar-96), I just should have
+          a bit of time to add the SMP support to v2.0.
+        * v2.1 to support RPC like network communication
+
+Old plan:
+	* X11-userinterface
+	* performance recording and display of recorded values
+	* multihost monitoring
+
+
++------------------------------------------------------------------------+
+! Jussi Maki                          ! Email: Jussi.Maki@csc.fi         !
+! Centre for Scientific Computing     ! URL:   http://www.csc.fi/~jmaki  !
+! P.O. Box 405                        ! Voice:     +358-0-457 2747       !
+! FIN-02101 Espoo, Finland            ! Telefax:   +358-0-457 2302       !
++------------------------------------------------------------------------+

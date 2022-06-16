@@ -1,0 +1,110 @@
+A new release of free real time IBM RS/6000 AIX system monitor program
+is available today at 25 March 1996. Monitor program can be used to
+display system statistics of various performance values on a full
+screen terminal for AIX releases 3.1, 3.2 and 4.1. The source code
+version of monitor program can be get from ftp-server ftp.funet.fi in
+file pub/unix/AIX/RS6000/monitor-1.14.tar.Z
+
+System events monitored in version 1.14 and some features are:
+ - cpu usage
+ - SMP - Symmetric multiprocessing cpuinfo for AIX4 machines (-smp option)
+ - load average (from kernel or by using loadavgd program)
+ - virtual and real memory usage (process and file mapping)
+ - paging information
+ - process events
+ - Disk I/O (summary and TOP disks 1.12)
+ - TTY I/O
+ - Network activity
+ - top cpu users 
+ - NFS operations (New to 1.11)
+ - more detailed disk I/O screen (New to 1.11 with -disk option)
+ - more detailed network I/O screen (New to 1.12 with -net option)
+ - toggle between normal/top/net/disk display using t,n,d keys
+ - output to a regular file (New to 1.13 with -p option or > redirection)
+
+Monitor package includes following utilities in source code:
+ + monitor    - the monitoring program itself
+ + top        - a shell script to call monitor -top
+ + uptime     - a Berkeley like uptime for pre AIX 3.2.4 systems
+ + fps	      - fast ps command which can follow one process (fps -c -p PID)
+ + loadavgd   - for pre AIX 3.2.4 systems to calculate load average values
+ + loadavgLED - program to show load average values on 3 digit LED display
+ + libmonitor.a - library for getting perfomance statistics from AIX kernel
+
+Near future release (2.0.6) together with Marcel Mol <marcel@mesa.nl> will
+include better support for file logging and cleaner coding approach.
+
+Some of the monitor-1.14 displays look like following:
+-------------------------------------------------------------------------------
+AIX monitor v1.14: leka.hut.fi                    Wed Jun 15 18:48:04 1994
+Sys  5.3% Wait  0.0% User 94.7% Idle  0.0%        Refresh: 10.56 s   
+0%             25%              50%               75%              100%
+===>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Runnable processes  8.33 load average:  8.85,  9.01,  8.76
+                                                          
+Memory    Real     Virtual    Paging (4kB)    Process events     File/TTY-IO
+free     85.6 MB  431.6 MB       1.6 pgfaults     189 pswitch      51 iget
+procs    84.7 MB  168.4 MB       0.0 pgin         338 syscall      24 namei
+files    21.7 MB                 0.0 pgout         32 read          0 dirblk
+total   192.0 MB  600.0 MB       0.0 pgsin         23 write     42237 readch
+                                 0.0 pgsout         0 fork      30173 writech
+DiskIO     Total Summary                            0 exec          1 ttyrawch
+read          0.0 kByte/s                           2 rcvint        0 ttycanch
+write         0.0 kByte/s     Client Server NFS/s  39 xmtint      882 ttyoutch
+transfers     0.0 tps            0.0    0.9 calls                    
+active       0/11 disks          0.0    0.0 retry
+                                 0.0    0.0 getattr   Netw  read   write
+TOPdisk read write     busy      0.0    0.9 lookup    lo0     0.0    0.0 kB/s
+hdisk1     0    0 kB/s   0%      0.0    0.0 read      en0     3.8   34.3 kB/s
+hdisk2     0    0 kB/s   0%      0.0    0.0 write
+hdisk3     0    0 kB/s   0%      0.0    0.0 other
+hdisk4     0    0 kB/s   0%
+
+% monitor -top
+leka.hut.fi      load averages:  1.05,  1.10,  1.14    Sun May 15 18:41:25 1994
+Cpu states:      93.1% user,  5.0% system,  2.0% wait,  0.0% idle
+Real memory:    110.9M free  68.4M user  12.6M numperm 192.0M total
+Virtual memory: 466.6M free 133.4M used 600.0M total
+ 
+   PID USER     PRI NICE   SIZE     RES STAT      TIME   CPU% COMMAND
+ 53453 mheinila 105   0    482K    616K run      95:26  94.1% prg1
+   514 root     127  21     28K      8K run    8157:10   2.0% wait (kproc)
+ 96310 jmaki     61   0    299K    332K run       0:00   2.0% monitor
+ 16397 amiettin  60   0    258K     88K sleep     0:03   1.0% ybiff
+ 55547 jhi       60   0    152K     52K sleep     0:00   1.0% rlogin
+ 12353 root      60   0    885K    220K sleep   349:49   0.0% glbd
+ 11836 root      60   0    504K    172K sleep   306:59   0.0% llbd
+   771 root      39  21     32K     16K sleep   201:37   0.0% netw (kproc)
+106601 hsirvio   60   0   1348K     12K sleep   181:10   0.0% sas.exe
+     0 root      16  21     24K      8K sleep   111:51   0.0% swapper (kproc)
+  5109 root      60   0    156K    128K sleep   103:51   0.0% portmap
+     1 root      60   0    280K    216K sleep    99:04   0.0% init
+  2650 root      60   0     64K     28K sleep    75:46   0.0% syncd
+ 59556 root      60   0    656K    356K sleep    47:20   0.0% mumsm
+  9509 root      60   0    146K     12K sleep    43:43   0.0% nfsd
+  8995 root      60   0    138K     12K sleep    43:40   0.0% nf
+
+% monitor -smp
+lesti.hut.fi     load averages:  0.24,  0.19,  0.20   Mon Mar 25 22:45:55 1996
+Cpu states:       2.6% user,   2.3% system,   0.0% wait,  95.0% idle
+Real memory:     265.0M free  180.9M procs   66.1M files  512.0M total
+Virtual memory: 1168.4M free  111.6M used                1280.0M total
+
+CPU USER KERN WAIT IDLE% PSW SYSCALL WRITE  READ WRITEkb  READkb
+#0    11    6    0   83  148     177    15    26    1.54   16.99
+#1     2    7    0   90   88     138    11    29    1.39    8.49
+#2     0    1    0   99   62      61    17    19    0.36    0.56
+#3     0    1    0   99   30       0     0     0    0.00    0.00
+#4     1    2    0   98   39     113    22     5    0.29    0.29
+#5     3    0    0   97   33     103     4    10    0.00    0.12
+#6     0    0    0  100   14       0     0     0    0.00    0.00
+#7     3    2    0   94   84      37     1     5    0.06  109.28
+=====================================================================
+SUM    3    2    0   95  499     629    71    93    3.64  135.73
+
++------------------------------------------------------------------------+
+! Jussi Maki                          ! Email: Jussi.Maki@csc.fi         !
+! Centre for Scientific Computing     ! URL:   http://www.csc.fi/~jmaki  !
+! P.O. Box 405                        ! Voice:     +358-0-457 2747       !
+! FIN-02101 Espoo, Finland            ! Telefax:   +358-0-457 2302       !
++------------------------------------------------------------------------+

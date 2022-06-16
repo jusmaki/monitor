@@ -1,0 +1,57 @@
+.TH FPS 1L \" -*- nroff -*-
+.\" Thanks to Christopher C. Evert for writing this man page
+
+.SH NAME
+fps \-
+.IR f ast
+.IR p rocess
+.IR s tatus
+
+.SH SYNOPSIS
+fps
+.RB [ -m ]
+.RB [ -a ]
+.RB [ -p
+.IR pid ]
+.RB [ -s
+.IR sleep ]
+.RB [ -continous ]
+
+.SH DESCRIPTION
+.I fps
+is a fast ps which shows processes without interpreting uids
+
+.SH OPTIONS
+.TP
+.BR  \-m
+Show memory in use by processes (SIZE and RES).
+
+.TP
+.BR \-a
+Show all processes.
+
+.TP
+.BR \-p \fIpid\fP
+Show status for process
+.IR pid .
+
+.TP 
+.BR \-s \fIsleep\fP
+Sleep for
+.I sleep
+seconds between updates when running in
+.B continuous
+mode.
+
+.TP
+.BR \-continuous
+Repeatedly list processes, sleeping for 1 second by default between
+iterations.
+
+.SH AUTHOR
+Jussi Maki, Helsinki University of Techonology, Computing Centre,
+Email: jmaki@hut.fi
+URL:  http://www.hut.fi/~jmaki
+
+.SH SEE ALSO
+vmstat(1), ps(1), sar(1), iostat(1), nfsstat(1)
