@@ -527,7 +527,7 @@ static void print_summary(double refresh_time,struct sysvminfo *sv1,struct sysvm
 
 typedef struct dksort {
     struct dkstat *dk1,*dk2;
-    ulong speed;
+    unsigned long speed;
 } dksort_t;
 
 int cmp_dksort(const void *a, const void *b)
@@ -548,7 +548,7 @@ static void print_dkstat(double refresh_time,struct dkstat *dk1,struct dkstat *d
     char active_str[16];
     
     ndisks = summary_dkstat(&dks, dk1,dk2, &active);
-    if (ndisks_sorted = 0) {
+    if (ndisks_sorted == 0) {
         dksorted = (dksort_t *) malloc(sizeof(dksort_t)*ndisks);
         ndisks_sorted = ndisks;
     }
@@ -648,7 +648,7 @@ static void print_ifnet(double refresh_time,struct ifnet *if1,struct ifnet *if2)
 {
     int i;
     int x,y;
-    char ifname[IFNAMSIZ];
+    char ifname[IFNAMSIZ*2];
 
     i=0;
     x=54;y=13;
@@ -657,7 +657,7 @@ static void print_ifnet(double refresh_time,struct ifnet *if1,struct ifnet *if2)
         if (if1->if_unit == -1) 
             sprintf(ifname, "%s",if1->if_name);
         else
-            sprintf(ifname, "%s%d",if1->if_name, if1->if_unit);
+            sprintf(ifname, "%s%d", if1->if_name, if1->if_unit);
         mon_print(y+1+i,x, "%-8s %6.1f %6.1f MBit/s",
                   ifname,
                   ifD(if_ibytes)*8.0/1024.0/1024.0/refresh_time,
@@ -674,7 +674,7 @@ static void print_ifnet_full(double refresh_time,struct ifnet *if1, struct ifnet
 {
     int i;
     int x,y;
-    char ifname[IFNAMSIZ];
+    char ifname[IFNAMSIZ*2];
 
     i=0;
     x=0;y=6;
@@ -943,8 +943,8 @@ void print_cpuinfo(double rs, struct cpuinfo **cpus, int n_cpus, int ci, topcpu_
         char procslist[128]="";
         for (t=0; t<ntop; t++) {
             if ((top[t].stat == 'R' || top[t].stat == 'D' || top[t].stat == 'W') && top[t].processor == i) {
-                strncat(procslist, top[t].progname, sizeof(procslist));
-                strncat(procslist, " ", sizeof(procslist));
+                strncat(procslist, top[t].progname, sizeof(procslist)-1);
+                strncat(procslist, " ", sizeof(procslist)-1);
             }
         }
         mon_print(6+i,0,"#%-2d %4.0f %4.0f %4.0f %4.0f %s\n",

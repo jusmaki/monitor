@@ -143,7 +143,9 @@ int get_dkstat(struct dkstat **ip)
     if (fgets(line, sizeof(line), f) <= 0) break;
     int numarg;
     numarg = sscanf(line, "%d %d %s %llu %llu %llu %llu %llu %llu %llu %llu %d %llu %llu" , &major, &minor, (char *)&diskid, &read_ios, &read_merges, &read_sectors, &read_time_tick, &write_ios, &write_merges, &write_sectors, &write_time_tick, &io_pending, &io_time_tick, &io_time_queue);
-    if (strncmp(diskid, "sd", 2)==0 || strncmp(diskid, "hd", 2)==0 || strncmp(diskid, "cciss", 5)==0 || strncmp(diskid, "xvd", 3)==0) {
+    if (strncmp(diskid, "vda", 3)==0 || strncmp(diskid, "sd", 2)==0 ||
+	strncmp(diskid, "hd", 2)==0 || strncmp(diskid, "cciss", 5)==0 ||
+	strncmp(diskid, "xvd", 3)==0) {
       // make statistics from the full disks only not per partition                                                                               
       if (strncmp(diskid, "cciss", 5)==0 && index(diskid, 'p')>0) continue; // skip cciss partitions                                              
       if (strncmp(diskid, "xvd", 3)==0)  {}
@@ -175,6 +177,7 @@ int get_ifnet(struct ifnet **ifp)
     fprintf(stderr, "FATAL ERROR: Cannot open /proc/net/dev");
     return 0;
   }
+  struct ifnet *prev = NULL;
   while (fgets(line, sizeof(line)-1, f) != NULL) {
     char *p=NULL;
     if ((p=strchr(line, ':'))) {
@@ -198,10 +201,12 @@ int get_ifnet(struct ifnet **ifp)
       ifnet->if_ipackets = recv_pkts;
       ifnet->if_opackets = send_pkts;
       ifnet->if_next = ifnet+1;
+      prev = ifnet;
       ifnet++;
     }
   }
   fclose(f);
+  if (prev != NULL) prev->if_next = NULL;
   return 0;
 }
 
@@ -338,15 +343,15 @@ int get_topcpu(topcpu_t **top, int ntop)
   gettimeofday(&now, NULL);
   DIR *dir = opendir("/proc");
   // TODO: Allocate the top array here
-  while (dirent = readdir(dir)) {
+  while ((dirent = readdir(dir))) {
     if (isdigit(dirent->d_name[0])) {
       count++;
     }
   }
   rewinddir(dir);
-  while (dirent = readdir(dir)) {
+  while ((dirent = readdir(dir))) {
     if (isdigit(dirent->d_name[0])) {
-      char procfile[128];
+      char procfile[512];
       if (i >= MAXTOPCPU) break;
       sprintf(procfile, "/proc/%s/stat", dirent->d_name);
       FILE *f = fopen(procfile, "r");
