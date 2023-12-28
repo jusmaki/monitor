@@ -143,13 +143,16 @@ int get_dkstat(struct dkstat **ip)
     if (fgets(line, sizeof(line), f) <= 0) break;
     int numarg;
     numarg = sscanf(line, "%d %d %s %llu %llu %llu %llu %llu %llu %llu %llu %d %llu %llu" , &major, &minor, (char *)&diskid, &read_ios, &read_merges, &read_sectors, &read_time_tick, &write_ios, &write_merges, &write_sectors, &write_time_tick, &io_pending, &io_time_tick, &io_time_queue);
-    if (strncmp(diskid, "vda", 3)==0 || strncmp(diskid, "sd", 2)==0 ||
-	strncmp(diskid, "hd", 2)==0 || strncmp(diskid, "cciss", 5)==0 ||
-	strncmp(diskid, "xvd", 3)==0) {
+    if (strncmp(diskid, "dm-", 3) == 0 || strncmp(diskid, "nvm", 3) == 0 ||
+        strncmp(diskid, "vda", 3)==0 || strncmp(diskid, "sd", 2)==0 ||
+        strncmp(diskid, "hd", 2)==0 || strncmp(diskid, "cciss", 5)==0 ||
+        strncmp(diskid, "xvd", 3)==0) {
       // make statistics from the full disks only not per partition                                                                               
-      if (strncmp(diskid, "cciss", 5)==0 && index(diskid, 'p')>0) continue; // skip cciss partitions                                              
+      if (strncmp(diskid, "cciss", 5)==0 && index(diskid, 'p')>0) continue; // skip cciss partitions
+      if (strncmp(diskid, "nvm", 3)==0 && index(diskid, 'p')>0) continue; // skip nvm partitions
       if (strncmp(diskid, "xvd", 3)==0)  {}
-      else if (strncmp(diskid, "cciss", 5)!=0 && isdigit(diskid[strlen(diskid)-1])) continue; // skip normal partitions                           
+      else if (strncmp(diskid, "cciss", 5)!=0 && strncmp(diskid, "nvm", 3)!=0 &&
+               isdigit(diskid[strlen(diskid)-1])) continue; // skip normal partitions                           
       strcpy(dk[numdisks].diskname, diskid);
       dk[numdisks].dk_rblks = read_sectors;
       dk[numdisks].dk_wblks = write_sectors;
