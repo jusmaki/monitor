@@ -169,7 +169,7 @@ int get_dkstat(struct dkstat **ip)
   dk[numdisks-1].dknextp = NULL;
   return numdisks;
 }
-#define MAXIF 64
+
 int get_ifnet(struct ifnet **ifp)
 {
   char line[512];

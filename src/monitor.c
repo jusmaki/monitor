@@ -16,11 +16,12 @@
  *           06.02.1996 v1.14-b0    support for SMP machines (-smp)
  *           25.03.1996 v1.14       time to release the 1.14
  *           04.12.2011 v3.0        Adding Linux support
+ *           28.12.2023 v3.1        Improving Linux support
  * TODO: 
  *           - Adding Linux cgroup support for docker monitoring
  */
 
-#define MONITOR_NAME "Linux monitor v3.0:"
+#define MONITOR_NAME "Linux monitor v3.1:"
 
 #include <curses.h>
 #include <stdio.h>
@@ -643,17 +644,61 @@ static void print_dkstat_full(double refresh_time,struct dkstat *dk1,struct dkst
 }
 
 #define ifD(a) ((if1->a) - (if2->a))
+#define ifD2(if1, if2, a) (((if1)->a) - ((if2)->a))
+
+typedef struct ifsort {
+    struct ifnet *if1,*if2;
+    unsigned long speed;
+} ifsort_t;
+
+int cmp_ifsort(const void *a, const void *b)
+{
+    if (((ifsort_t *)a)->speed > ((ifsort_t *)b)->speed) return (-1);
+    else if (((ifsort_t *)a)->speed < ((ifsort_t *)b)->speed) return ( 1);
+    return (0);
+}
 
 static void print_ifnet(double refresh_time,struct ifnet *if1,struct ifnet *if2)
 {
     int i;
     int x,y;
     char ifname[IFNAMSIZ*2];
+    static ifsort_t *ifsorted;
+    static int nif_sorted = 0;
+    int nif = 0;
 
+    for (nif = 0; nif < MAXIF; nif++) {
+        if (if1[nif].if_next == NULL) break;
+    }
+    nif++;
+    
+    if (nif_sorted == 0) {
+        ifsorted = (ifsort_t *)malloc(sizeof(ifsort_t)*nif);
+        nif_sorted = nif;
+    }
+    if (nif > nif_sorted) {
+        free(ifsorted);
+        ifsorted = (ifsort_t *)malloc(sizeof(ifsort_t)*nif);
+        nif_sorted = nif;
+    }
+    
+    i=0;
+    while (if1) { /* initialize the sorting list */
+        ifsorted[i].if1 = &if1[i];
+        ifsorted[i].if2 = &if2[i];
+        ifsorted[i].speed = ifD2(&if1[i],&if2[i],if_ibytes)+ifD2(&if1[i],&if2[i],if_obytes);
+        if (! if1[i].if_next) break;
+        i++;
+    }
+    qsort((void*)ifsorted, (size_t)nif, (size_t)sizeof(ifsort_t), cmp_ifsort);
+    
     i=0;
     x=54;y=13;
     mon_print(y+0,x, "Netw       read  write");
-    while (if1) {
+    for (int i=0; i<nif; i++) {
+        if (i==20) break;
+        if1 = ifsorted[i].if1;
+        if2 = ifsorted[i].if2;
         if (if1->if_unit == -1) 
             sprintf(ifname, "%s",if1->if_name);
         else
@@ -662,10 +707,6 @@ static void print_ifnet(double refresh_time,struct ifnet *if1,struct ifnet *if2)
                   ifname,
                   ifD(if_ibytes)*8.0/1024.0/1024.0/refresh_time,
                   ifD(if_obytes)*8.0/1024.0/1024.0/refresh_time);
-        if (!if1->if_next) break;
-        if1 = if1->if_next;
-        if2 = if2->if_next;
-        i++;
     }
 }
 
@@ -675,11 +716,42 @@ static void print_ifnet_full(double refresh_time,struct ifnet *if1, struct ifnet
     int i;
     int x,y;
     char ifname[IFNAMSIZ*2];
+    static ifsort_t *ifsorted;
+    static int nif_sorted = 0;
+    int nif = 0;
 
+    for (nif = 0; nif < MAXIF; nif++) {
+        if (if1[nif].if_next == NULL) break;
+    }
+    nif++;
+
+    if (nif_sorted == 0) {
+        ifsorted = (ifsort_t *)malloc(sizeof(ifsort_t)*nif);
+        nif_sorted = nif;
+    }
+    if (nif > nif_sorted) {
+        free(ifsorted);
+        ifsorted = (ifsort_t *)malloc(sizeof(ifsort_t)*nif);
+        nif_sorted = nif;
+    }
+    
+    i=0;
+    while (if1) { /* initialize the sorting list */
+        ifsorted[i].if1 = &if1[i];
+        ifsorted[i].if2 = &if2[i];
+        ifsorted[i].speed = ifD2(&if1[i],&if2[i],if_ibytes)+ifD2(&if1[i],&if2[i],if_obytes);
+        if (! if1[i].if_next) break;
+        i++;
+    }
+    qsort((void*)ifsorted, (size_t)nif, (size_t)sizeof(ifsort_t), cmp_ifsort);
+    
     i=0;
     x=0;y=6;
     mon_print(y+0,x, "Netw       read   write        rcount wcount rsize wsize\n");
-    while (if1) {
+    for (i = 0; i<nif; i++) {
+        if (i==20) break;
+        if1 = ifsorted[i].if1;
+        if2 = ifsorted[i].if2;
         int isize,osize;
         if (ifD(if_ipackets)) isize = ifD(if_ibytes)/ifD(if_ipackets);
         else isize = 0;
@@ -696,10 +768,6 @@ static void print_ifnet_full(double refresh_time,struct ifnet *if1, struct ifnet
                   ifD(if_ipackets), ifD(if_opackets),isize, osize);
 
 	       
-        if (!if1->if_next) break;
-        if1 = if1->if_next;
-        if2 = if2->if_next;
-        i++;
     }
     /*    printw("\n");*/
 }

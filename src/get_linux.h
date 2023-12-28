@@ -295,7 +295,8 @@ extern int no_nfs;
 
 #define TOPCPU_USERNAME_LEN 16
 #define TOPCPU_PROGNAME_LEN 64
-#define MAXTOPCPU 2000
+#define MAXTOPCPU 20000
+#define MAXIF 256
 
 typedef struct {                                /*        Size */
   uid_t   uid;                                  /*           4 */
