@@ -207,7 +207,7 @@ static void parse_args(int argc, char **argv)
                 break;
             case 't': /* -top [nproc] */
                 show_top = 1;
-                if (atoi(argv[2])>0) {
+                if (argc > 2 && atoi(argv[2])>0) {
                     g_ntop=atoi(argv[2]);
                     argc--;argv++;
                 } else {
@@ -447,20 +447,20 @@ void print_sysinfo(double refresh_time,
               (runnable+1.0)*SIDELTA(runocc)/refresh_time, loadv[0],loadv[1],loadv[2]);
     x=0;y=6;
     mon_print(y+0,x, "Memory    Real     Virtual     Paging (4kB)");
-    mon_print(y+1,x, "free   %8.1lf MB %7.1lf MB  %6.1f pgfaults",
+    mon_print(y+1,x, "free   %8.0lf MB %7.0lf MB  %6.0f pgfaults",
               vmk->memfree/1024.0,vmk->swapfree/1024.0,
               VMDELTA(pgfault)/refresh_time);
-    mon_print(y+2,x, "procs  %8.1lf MB %7.1lf MB   %5.1f pgin", 
+    mon_print(y+2,x, "procs  %8.0lf MB %7.0lf MB   %5.0f pgin", 
               (vmk->memtotal - vmk->memfree - vmk->buffers - vmk->cached)/1024.0,
               (vmk->swaptotal - vmk->swapfree)/1024.0,
               VMDELTA(pageins)/refresh_time);
-    mon_print(y+3,x, "cached %8.1lf MB              %5.1f pgout", 
+    mon_print(y+3,x, "cached %8.0lf MB              %5.0f pgout", 
               vmk->cached/1024.0,
               VMDELTA(pageouts)/refresh_time);
-    mon_print(y+4,x, "buffs  %8.1lf MB              %5.1f pgsin", 
+    mon_print(y+4,x, "buffs  %8.0lf MB              %5.0f pgsin", 
               vmk->buffers/1024.0,
               VMDELTA(pswpin)/refresh_time);
-    mon_print(y+5,x, "total  %8.1lf MB %7.1lf MB   %5.1f pgsout",
+    mon_print(y+5,x, "total  %8.0lf MB %7.0lf MB   %5.0f pgsout",
               (vmk->memtotal)/1024.0, vmk->swaptotal/1024.0,
               VMDELTA(pswpout)/refresh_time);
 
@@ -618,7 +618,7 @@ static void print_dkstat_full(double refresh_time,struct dkstat *dk1,struct dkst
             rsize = dkD(dk_rblks)*dk1->dk_bsize/1024.0/xfers;
             wsize = dkD(dk_wblks)*dk1->dk_bsize/1024.0/xfers;
         }
-        mon_print(y+1+i,x, "%-7s %6.1f %6.1f MB/s %4.1f %4.1f kB %6.0f %3.0f%%",
+        mon_print(y+1+i,x, "%-7s %6.1f %6.1f MB/s %4.0f %4.0f kB %6.0f %3.0f%%",
                   dk1->diskname,
                   dkD(dk_rblks)*dk1->dk_bsize/1024.0/1024.0/refresh_time,
                   dkD(dk_wblks)*dk1->dk_bsize/1024.0/1024.0/refresh_time,
@@ -815,7 +815,7 @@ static void print_topcpu(double refresh_time, topcpu_t *top, int ntop)
     else getyx(stdscr, y, x);
     y+=2;
     if (!topflag_usersystemtime) {
-        mon_print(y,0, "   PID USER     PRI NICE  SIZE  RES ST   TIME   CPU%% COMMAND");
+        mon_print(y,0, "    PID USER     PRI NICE  SIZE  RES ST   TIME   CPU%% COMMAND");
         y++;
         for (i=0; i<ntop && y+i+2<lines; i++) {
             if (show_top_running && !top[i].cputime_prs) break;
@@ -832,7 +832,7 @@ static void print_topcpu(double refresh_time, topcpu_t *top, int ntop)
             print_mem(vsize, top[i].memsize_1k*1024);
             print_mem(rsize, top[i].ressize_1k*1024);
 
-            mon_print(y+i,0, "%6d %-9s %3d %3d %s %s %c %6.2f %5.1f%% %s\n",
+            mon_print(y+i,0, "%7d %-9s %3d %3d %s %s %c %6.2f %5.1f%% %s\n",
                       top[i].pid,	   username,
                       top[i].pri,	   top[i].nice,
                       vsize,    rsize,
@@ -842,7 +842,7 @@ static void print_topcpu(double refresh_time, topcpu_t *top, int ntop)
                       top[i].progname);
         }
     } else {
-        mon_print(y,0,"   PID USER     PRI NICE  SIZE   RES  PGFLT ST  USERTIME    SYSTIME   CPU%% COMMAND");y++;
+        mon_print(y,0,"    PID USER     PRI NICE  SIZE   RES  PGFLT ST  USERTIME    SYSTIME   CPU%% COMMAND");y++;
         for (i=0; i<ntop && y+i+3<lines; i++) {
             if (show_top_running && !top[i].cputime_prs) break;
 
@@ -858,7 +858,7 @@ static void print_topcpu(double refresh_time, topcpu_t *top, int ntop)
             char rsize[32];
             print_mem(vsize, top[i].memsize_1k*1024);
             print_mem(rsize, top[i].ressize_1k*1024);
-            mon_print(y+i,0, "%6d %-8s %3d %3d  %s %s %6.0f %c %4d:%02d.%02d %4d:%02d.%02d %5.1f%% %s\n",
+            mon_print(y+i,0, "%7d %-8s %3d %3d  %s %s %6.0f %c %4d:%02d.%02d %4d:%02d.%02d %5.1f%% %s\n",
                       top[i].pid,	   // %6d
                       username,          // %-8d
                       top[i].pri,	   // %3d

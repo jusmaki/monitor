@@ -151,8 +151,10 @@ int get_dkstat(struct dkstat **ip)
       if (strncmp(diskid, "cciss", 5)==0 && index(diskid, 'p')>0) continue; // skip cciss partitions
       if (strncmp(diskid, "nvm", 3)==0 && index(diskid, 'p')>0) continue; // skip nvm partitions
       if (strncmp(diskid, "xvd", 3)==0)  {}
-      else if (strncmp(diskid, "cciss", 5)!=0 && strncmp(diskid, "nvm", 3)!=0 &&
-               isdigit(diskid[strlen(diskid)-1])) continue; // skip normal partitions                           
+      else if (strncmp(diskid, "cciss", 5)!=0 &&
+               strncmp(diskid, "nvm", 3)!=0 &&
+               strncmp(diskid, "dm-", 3)!=0 &&
+               isdigit(diskid[strlen(diskid)-1])) continue; // skip normal partitions
       strcpy(dk[numdisks].diskname, diskid);
       dk[numdisks].dk_rblks = read_sectors;
       dk[numdisks].dk_wblks = write_sectors;
