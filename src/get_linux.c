@@ -194,15 +194,17 @@ int get_ifnet(struct ifnet **ifp)
       sscanf(line, "%s %lld %lld %d %d %d %d %d %d %lld %lld %d", ifname, 
 	     &recv_bytes, &recv_pkts, &recv_errs, &recv_drop, &recv_fifo, &recv_frame, &recv_comp, &recv_mcast,
 	     &send_bytes, &send_pkts, &send_errs);
-      strcpy(ifnet->if_name, ifname);
-      ifnet->if_unit = -1;
-      ifnet->if_ibytes = recv_bytes;
-      ifnet->if_obytes = send_bytes;
-      ifnet->if_ipackets = recv_pkts;
-      ifnet->if_opackets = send_pkts;
-      ifnet->if_next = ifnet+1;
-      prev = ifnet;
-      ifnet++;
+      if (send_pkts || recv_pkts) {
+          strcpy(ifnet->if_name, ifname);
+          ifnet->if_unit = -1;
+          ifnet->if_ibytes = recv_bytes;
+          ifnet->if_obytes = send_bytes;
+          ifnet->if_ipackets = recv_pkts;
+          ifnet->if_opackets = send_pkts;
+          ifnet->if_next = ifnet+1;
+          prev = ifnet;
+          ifnet++;
+      }
     }
   }
   fclose(f);
